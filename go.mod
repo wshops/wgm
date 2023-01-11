@@ -5,10 +5,12 @@ go 1.19
 require (
 	github.com/gookit/slog v0.4.0
 	github.com/qiniu/qmgo v1.1.4
+	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.11.1
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
@@ -20,6 +22,7 @@ require (
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
@@ -30,4 +33,5 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/text v0.5.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
