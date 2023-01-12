@@ -1,4 +1,4 @@
-package internal
+package wgm_test
 
 import (
 	"github.com/wshops/wgm"

@@ -3,22 +3,21 @@ package wgm_test
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/wshops/wgm"
-	"github.com/wshops/wgm/internal"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
 )
 
 func TestGetCollection(t *testing.T) {
-	internal.SetupDefaultConnection()
-	doc := internal.NewDoc("Alice", 12)
+	SetupDefaultConnection()
+	doc := NewDoc("Alice", 12)
 	collection := wgm.Col(doc.ColName())
 
 	require.NotNil(t, collection)
 }
 
 func TestGetCtx(t *testing.T) {
-	internal.SetupDefaultConnection()
+	SetupDefaultConnection()
 	ctx := wgm.Ctx()
 	ctx.Deadline()
 
@@ -27,41 +26,41 @@ func TestGetCtx(t *testing.T) {
 }
 
 func TestFindWithPage(t *testing.T) {
-	internal.SetupDefaultConnection()
-	doc1 := internal.NewDoc("Alice", 12)
-	doc2 := internal.NewDoc("Candy", 24)
-	internal.InsertDoc(doc1)
-	internal.InsertDoc(doc2)
-	defer internal.DelDoc(doc1)
-	defer internal.DelDoc(doc2)
+	SetupDefaultConnection()
+	doc1 := NewDoc("Alice", 12)
+	doc2 := NewDoc("Candy", 24)
+	InsertDoc(doc1)
+	InsertDoc(doc2)
+	defer DelDoc(doc1)
+	defer DelDoc(doc2)
 
-	var doc []*internal.Doc
-	wgm.FindWithPage(&internal.Doc{}, nil, &doc, 5, 1)
+	var doc []*Doc
+	wgm.FindWithPage(&Doc{}, nil, &doc, 5, 1)
 
-	var DBDocs = []*internal.Doc{doc1, doc2}
+	var DBDocs = []*Doc{doc1, doc2}
 	for i, dbDoc := range DBDocs {
 		require.Equal(t, doc[i].Age, dbDoc.Age)
 	}
 }
 
 func TestFindOne(t *testing.T) {
-	internal.SetupDefaultConnection()
-	DBdoc := internal.NewDoc("Alice", 12)
-	objectID := internal.InsertDoc(DBdoc)
-	defer internal.DelDoc(DBdoc)
+	SetupDefaultConnection()
+	DBdoc := NewDoc("Alice", 12)
+	objectID := InsertDoc(DBdoc)
+	defer DelDoc(DBdoc)
 
-	var doc internal.Doc
+	var doc Doc
 	wgm.FindOne(&doc, nil)
 	require.Equal(t, doc.Id, objectID)
 }
 
 func TestFindById(t *testing.T) {
-	internal.SetupDefaultConnection()
-	DBdoc := internal.NewDoc("Alice", 12)
-	objectID := internal.InsertDoc(DBdoc)
-	defer internal.DelDoc(DBdoc)
+	SetupDefaultConnection()
+	DBdoc := NewDoc("Alice", 12)
+	objectID := InsertDoc(DBdoc)
+	defer DelDoc(DBdoc)
 
-	doc := &internal.Doc{}
+	doc := &Doc{}
 	doc.Id = objectID
 	_, err := wgm.FindById(doc.ColName(), doc.GetId(), doc)
 	require.Nil(t, err)
@@ -71,25 +70,25 @@ func TestFindById(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	internal.SetupDefaultConnection()
-	doc := internal.NewDoc("Alice", 12)
-	defer internal.DelDoc(doc)
+	SetupDefaultConnection()
+	doc := NewDoc("Alice", 12)
+	defer DelDoc(doc)
 
 	result, err := wgm.Insert(doc)
 	require.Nil(t, err)
 
-	DBdoc := &internal.Doc{}
+	DBdoc := &Doc{}
 	wgm.FindOne(DBdoc, nil)
 	require.Equal(t, result.InsertedID.(primitive.ObjectID), DBdoc.Id)
 }
 
 func TestUpdate(t *testing.T) {
-	internal.SetupDefaultConnection()
-	DBdoc := internal.NewDoc("Alice", 12)
-	ObjectID := internal.InsertDoc(DBdoc)
-	defer internal.DelDoc(DBdoc)
+	SetupDefaultConnection()
+	DBdoc := NewDoc("Alice", 12)
+	ObjectID := InsertDoc(DBdoc)
+	defer DelDoc(DBdoc)
 
-	var doc = &internal.Doc{
+	var doc = &Doc{
 		Name: "Bob",
 		Age:  99,
 	}
@@ -97,16 +96,16 @@ func TestUpdate(t *testing.T) {
 	err := wgm.Update(doc)
 	require.Nil(t, err)
 
-	DBdoc = &internal.Doc{}
+	DBdoc = &Doc{}
 	wgm.FindOne(DBdoc, nil)
 	require.Equal(t, DBdoc.Age, doc.Age)
 	require.Equal(t, DBdoc.Name, doc.Name)
 }
 
 func TestDelete(t *testing.T) {
-	internal.SetupDefaultConnection()
-	DBdoc := internal.NewDoc("Alice", 12)
-	ObjectID := internal.InsertDoc(DBdoc)
+	SetupDefaultConnection()
+	DBdoc := NewDoc("Alice", 12)
+	ObjectID := InsertDoc(DBdoc)
 
 	DBdoc.Id = ObjectID
 	err := wgm.Delete(DBdoc)
