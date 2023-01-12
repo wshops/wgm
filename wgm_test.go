@@ -3,7 +3,6 @@ package wgm_test
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/wshops/wgm"
-	"github.com/wshops/wgm/internal"
 	"testing"
 )
 
@@ -18,7 +17,7 @@ func TestSetupWrongConnection(t *testing.T) {
 }
 
 func TestPing(t *testing.T) {
-	internal.SetupDefaultConnection()
+	SetupDefaultConnection()
 	err := wgm.Ping()
 	require.Nil(t, err)
 }
