@@ -26,3 +26,18 @@ func DelDoc(doc *Doc) {
 		panic(err)
 	}
 }
+
+func InsertStu(stu *Student) primitive.ObjectID {
+	result, err := wgm.Insert(stu)
+	if err != nil {
+		panic(err)
+	}
+	return result.InsertedID.(primitive.ObjectID)
+}
+
+func DelStu(stu *Student) {
+	err := wgm.Delete(stu)
+	if err != nil {
+		panic(err)
+	}
+}
