@@ -1,10 +1,12 @@
 package wgm_test
 
 import (
+	"github.com/gookit/slog"
 	"github.com/stretchr/testify/require"
 	"github.com/wshops/wgm"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"reflect"
 	"testing"
 )
 
@@ -205,4 +207,34 @@ func BenchmarkDelete(b *testing.B) {
 
 	result := wgm.FindOne(DBdoc, bson.M{"_id": ObjectID})
 	require.False(b, result)
+}
+
+func TestDistinct(t *testing.T) {
+	SetupDefaultConnection()
+	stu1 := NewStudent(Info{
+		Name: "Alice",
+		Age:  12,
+	})
+	stu2 := NewStudent(Info{
+		Name: "Candy",
+		Age:  54,
+	})
+	InsertStu(stu1)
+	InsertStu(stu2)
+	defer DelStu(stu1)
+	defer DelStu(stu2)
+	var infoArr []Info
+	err := wgm.Distinct(stu1, nil, "info", &infoArr)
+	slog.Info(infoArr)
+	require.Nil(t, err)
+
+	require.Equal(t, 2, len(infoArr))
+	require.True(t, reflect.DeepEqual(infoArr[0], Info{
+		Name: "Alice",
+		Age:  12,
+	}))
+	require.True(t, reflect.DeepEqual(infoArr[1], Info{
+		Name: "Candy",
+		Age:  54,
+	}))
 }
