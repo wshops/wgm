@@ -45,17 +45,23 @@ func IsNoResult(err error) bool {
 // m           查询的合集
 // filter      查询条件，查询全部文档使用 nil，查询条件使用 bson.M
 // res         结果集指针，必须为指向切片的指针!!!
-// pageSize    页面大小
+// selectField 返回字段
+// sortFields 排序字段
+// pageSize  页面大小
 // currentPage 当前页面
 // totalDoc 总数据数量
 // totalPage 总页面数量
-func FindWithPage(m IDefaultModel, filter any, res any, pageSize int64, currentPage int64, sortFields ...string) (totalDoc int64, totalPage int64) {
+func FindWithPage(m IDefaultModel, filter any, res any, pageSize int64, currentPage int64, selectField any, sortFields []string) (totalDoc int64, totalPage int64) {
 	if instance == nil {
 		slog.Fatal("must initialize WGM first, by calling InitWgm() method")
 	}
 
 	if filter == nil {
 		filter = bson.D{}
+	}
+
+	if selectField == nil {
+		selectField = bson.M{}
 	}
 
 	countDoc, err := instance.GetModelCollection(m).Find(instance.Ctx(), filter).Count()
@@ -78,7 +84,7 @@ func FindWithPage(m IDefaultModel, filter any, res any, pageSize int64, currentP
 		size = pageSize
 	}
 
-	err = instance.GetModelCollection(m).Find(instance.Ctx(), filter).Sort(sortFields...).Limit(size).Skip(offset).All(res)
+	err = instance.GetModelCollection(m).Find(instance.Ctx(), filter).Select(selectField).Sort(sortFields...).Limit(size).Skip(offset).All(res)
 
 	if err != nil {
 		slog.Error(err)
