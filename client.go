@@ -41,27 +41,21 @@ func IsNoResult(err error) bool {
 	return false
 }
 
-// FindWithPage 数据库分页查询
+// FindPage 数据库分页查询
 // m           查询的合集
 // filter      查询条件，查询全部文档使用 nil，查询条件使用 bson.M
 // res         结果集指针，必须为指向切片的指针!!!
-// selectField 返回字段
-// sortFields 排序字段
 // pageSize  页面大小
 // currentPage 当前页面
 // totalDoc 总数据数量
 // totalPage 总页面数量
-func FindWithPage(m IDefaultModel, filter any, res any, pageSize int64, currentPage int64, selectField any, sortFields []string) (totalDoc int64, totalPage int64) {
+func FindPage(m IDefaultModel, filter any, res any, pageSize int64, currentPage int64) (totalDoc int64, totalPage int64) {
 	if instance == nil {
 		slog.Fatal("must initialize WGM first, by calling InitWgm() method")
 	}
 
 	if filter == nil {
 		filter = bson.D{}
-	}
-
-	if selectField == nil {
-		selectField = bson.M{}
 	}
 
 	countDoc, err := instance.GetModelCollection(m).Find(instance.Ctx(), filter).Count()
@@ -83,19 +77,76 @@ func FindWithPage(m IDefaultModel, filter any, res any, pageSize int64, currentP
 	} else {
 		size = pageSize
 	}
+	if pageSize == 1 {
+		totalPage = countDoc / pageSize
+	} else {
+		totalPage = 1 + countDoc/pageSize
+	}
 
-	err = instance.GetModelCollection(m).Find(instance.Ctx(), filter).Select(selectField).Sort(sortFields...).Limit(size).Skip(offset).All(res)
+	err = instance.GetModelCollection(m).Find(instance.Ctx(), filter).Limit(size).Skip(offset).All(res)
 
 	if err != nil {
 		slog.Error(err)
 		return 0, 0
 	}
 	// 判断总页数totalPage
+
+	return countDoc, totalPage
+}
+
+// FindPageWithOption 数据库多条件分页查询
+// m           查询的合集
+// filter      查询条件，查询全部文档使用 nil，查询条件使用 bson.M
+// res         结果集指针，必须为指向切片的指针!!!
+// pageSize  页面大小
+// currentPage 当前页面
+// totalDoc 总数据数量
+// totalPage 总页面数量
+func FindPageWithOption(m IDefaultModel, filter any, res any, pageSize int64, currentPage int64, option *FindPageOption) (totalDoc int64, totalPage int64) {
+	if instance == nil {
+		slog.Fatal("must initialize WGM first, by calling InitWgm() method")
+	}
+
+	if filter == nil {
+		filter = bson.D{}
+	}
+
+	countDoc, err := instance.GetModelCollection(m).Find(instance.Ctx(), filter).Count()
+	if IsNoResult(err) {
+		return 0, 0
+	}
+	if err != nil {
+		slog.Error(err)
+		res = nil
+		return 0, 0
+	}
+
+	// 计算应该跳过的doc,
+	offset := (currentPage - 1) * pageSize
+	// 计算应该返回多少条记录
+	var size int64
+	if countDoc-offset < pageSize {
+		size = countDoc - offset
+	} else {
+		size = pageSize
+	}
 	if pageSize == 1 {
 		totalPage = countDoc / pageSize
 	} else {
 		totalPage = 1 + countDoc/pageSize
 	}
+
+	err = instance.GetModelCollection(m).Find(instance.Ctx(), filter).
+		Select(option.selector).
+		Sort(option.fields...).
+		Limit(size).Skip(offset).All(res)
+
+	if err != nil {
+		slog.Error(err)
+		return 0, 0
+	}
+	// 判断总页数totalPage
+
 	return countDoc, totalPage
 }
 

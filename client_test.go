@@ -27,7 +27,7 @@ func TestGetCtx(t *testing.T) {
 	require.True(t, ok, "context should having deadline.")
 }
 
-func TestFindWithPage(t *testing.T) {
+func TestFindPage(t *testing.T) {
 	SetupDefaultConnection()
 	doc1 := NewDoc("Alice", 12)
 	doc2 := NewDoc("Candy", 24)
@@ -37,7 +37,7 @@ func TestFindWithPage(t *testing.T) {
 	defer DelDoc(doc2)
 
 	var doc []*Doc
-	wgm.FindWithPage(&Doc{}, nil, &doc, 5, 1)
+	wgm.FindPage(&Doc{}, nil, &doc, 5, 1)
 
 	var DBDocs = []*Doc{doc1, doc2}
 	for i, dbDoc := range DBDocs {
@@ -56,7 +56,7 @@ func BenchmarkFindWithPage(b *testing.B) {
 	defer DelDoc(doc2)
 
 	var doc []*Doc
-	wgm.FindWithPage(&Doc{}, nil, &doc, 5, 1)
+	wgm.FindPage(&Doc{}, nil, &doc, 5, 1)
 
 	var DBDocs = []*Doc{doc1, doc2}
 	for i, dbDoc := range DBDocs {
@@ -237,4 +237,20 @@ func TestDistinct(t *testing.T) {
 		Name: "Candy",
 		Age:  54,
 	}))
+}
+
+func TestFindPageWithOption(t *testing.T) {
+	SetupDefaultConnection()
+	doc1 := NewDoc("Alice", 12)
+	doc2 := NewDoc("Candy", 24)
+	InsertDoc(doc1)
+	InsertDoc(doc2)
+	defer DelDoc(doc1)
+	defer DelDoc(doc2)
+
+	option := wgm.NewFindPageOption().SetSelectField(bson.M{"age": 1}).SetSortField("-age")
+	var doc []*Doc
+	wgm.FindPageWithOption(&Doc{}, nil, &doc, 5, 1, option)
+	require.Equal(t, doc[0].Age, 24)
+	require.Equal(t, doc[1].Age, 12)
 }
