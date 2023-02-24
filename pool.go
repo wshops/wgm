@@ -8,11 +8,11 @@ var FindPageOptionSyncPool = sync.Pool{
 	},
 }
 
-func acquireMoney() *FindPageOption {
+func acquireFindPageOption() *FindPageOption {
 	return FindPageOptionSyncPool.Get().(*FindPageOption)
 }
 
-func releaseMoney(m *FindPageOption) {
+func releaseFindPageOption(m *FindPageOption) {
 	m.selector = nil
 	m.fields = nil
 	FindPageOptionSyncPool.Put(m)

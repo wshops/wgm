@@ -140,7 +140,7 @@ func FindPageWithOption(m IDefaultModel, filter any, res any, pageSize int64, cu
 		Select(option.selector).
 		Sort(option.fields...).
 		Limit(size).Skip(offset).All(res)
-
+	releaseFindPageOption(option)
 	if err != nil {
 		slog.Error(err)
 		return 0, 0
