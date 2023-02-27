@@ -140,7 +140,7 @@ func FindPageWithOption(m IDefaultModel, filter any, res any, pageSize int64, cu
 		Select(option.selector).
 		Sort(option.fields...).
 		Limit(size).Skip(offset).All(res)
-
+	releaseFindPageOption(option)
 	if err != nil {
 		slog.Error(err)
 		return 0, 0
@@ -278,6 +278,23 @@ func Distinct(m IDefaultModel, filter any, field string, result any) error {
 	}
 
 	err := instance.GetModelCollection(m).Find(instance.Ctx(), filter).Distinct(field, result)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Aggregate
+// @param m: 查询合集
+// @param pipeline: 聚合管道,必须为数组
+// @param result: 查询结果,必须为指向数组的指针
+// @Description: 聚合查询,详情见 https://www.mongodb.com/docs/manual/aggregation/
+func Aggregate(m IDefaultModel, pipeline any, result any) error {
+	if instance == nil {
+		slog.Fatal("must initialize WGM first, by calling InitWgm() method")
+	}
+
+	err := instance.GetModelCollection(m).Aggregate(instance.Ctx(), pipeline).All(result)
 	if err != nil {
 		return err
 	}

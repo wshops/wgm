@@ -35,3 +35,8 @@ type Info struct {
 	Name string `bson:"name"`
 	Age  int    `bson:"age"`
 }
+
+type AggregateDoc struct {
+	Name float64 `bson:"name"`
+	Age  int     `bson:"age"`
+}

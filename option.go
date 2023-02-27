@@ -24,5 +24,5 @@ func (o *FindPageOption) SetSelectField(bson interface{}) *FindPageOption {
 }
 
 func NewFindPageOption() *FindPageOption {
-	return acquireMoney()
+	return acquireFindPageOption()
 }
