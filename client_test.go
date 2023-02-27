@@ -254,3 +254,26 @@ func TestFindPageWithOption(t *testing.T) {
 	require.Equal(t, doc[0].Age, 24)
 	require.Equal(t, doc[1].Age, 12)
 }
+
+func BenchmarkAggregate(b *testing.B) {
+	SetupDefaultConnection()
+	doc1 := NewDoc("3.78", 12)
+	doc2 := NewDoc("2.56", 24)
+	InsertDoc(doc1)
+	InsertDoc(doc2)
+	defer DelDoc(doc1)
+	defer DelDoc(doc2)
+
+	var doc []*AggregateDoc
+
+	pipeline := bson.A{
+		bson.M{"$addFields": bson.M{
+			"name": bson.M{"$toDouble": "$name"},
+		}},
+	}
+	err := wgm.Aggregate(&Doc{}, pipeline, &doc)
+	require.Nil(b, err)
+
+	require.Equal(b, 3.78, doc[0].Name)
+	require.Equal(b, 2.56, doc[1].Name)
+}
