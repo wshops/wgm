@@ -77,7 +77,7 @@ func FindPage(m IDefaultModel, filter any, res any, pageSize int64, currentPage 
 	} else {
 		size = pageSize
 	}
-	if pageSize == 1 {
+	if countDoc%pageSize == 0 {
 		totalPage = countDoc / pageSize
 	} else {
 		totalPage = 1 + countDoc/pageSize
@@ -130,7 +130,7 @@ func FindPageWithOption(m IDefaultModel, filter any, res any, pageSize int64, cu
 	} else {
 		size = pageSize
 	}
-	if pageSize == 1 {
+	if countDoc%pageSize == 0 {
 		totalPage = countDoc / pageSize
 	} else {
 		totalPage = 1 + countDoc/pageSize
